@@ -125,7 +125,6 @@ def main():
 
     args = parser.parse_args()
 
-    print (args.packet_dates)
     if args.input_rate < args.rate:
         print(bcolors.FAIL,
               "The bucket token rate must be lower than the incomming" +
