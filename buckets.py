@@ -11,10 +11,12 @@ import time
 
 ACCEPTED = 'ACCEPTED'
 REJECTED = 'REJECTED'
+SENT = 'SENT'
 
 
 class bcolors:
     OKGREEN = '\033[92m'
+    OKBLUE = '\033[94m'
     WARNING = '\033[93m'
     FAIL = '\033[91m'
     ENDC = '\033[0m'
@@ -30,9 +32,11 @@ def leaky_bucket(r, size, packet_size, time_lapse, packet_dates):
     sent_packets = 0
     r = r / 1000.0  # Converting r to milliseconds
     for i in xrange(0, time_lapse + 1):
+        flag = 0
         if i in packet_dates:
             queue += 1
             bucket += packet_size
+            flag = 1
 
         if bucket > size and queue > 0:
             queue -= 1
@@ -42,9 +46,14 @@ def leaky_bucket(r, size, packet_size, time_lapse, packet_dates):
             leak = 0
             queue -= 1
             sent_packets += 1
-            sent_data.append([i, bucket, ACCEPTED, sent_packets, leak, queue])
+            sent_data.append([i, bucket, SENT, sent_packets, leak, queue])
         else:
-            sent_data.append([i, bucket, '--------', sent_packets, leak, queue])
+            if not flag:
+                sent_data.append([
+                    i, bucket, '--------', sent_packets, leak, queue])
+            else:
+                sent_data.append([
+                    i, bucket, ACCEPTED, sent_packets, leak, queue])
 
         bucket -= r
 
@@ -73,7 +82,7 @@ def token_bucket(r, size, input_rate, packet_size, time_lapse, packet_dates):
             else:
                 bucket -= packet_size
                 sent_packets += 1
-                sent_data.append([i, bucket, ACCEPTED, sent_packets])
+                sent_data.append([i, bucket, SENT, sent_packets])
         else:
             sent_data.append([i, bucket, '--------', sent_packets])
 
@@ -141,10 +150,10 @@ def main():
         print("Time | Bucket | Status | Number of Packs Sent")
         print("=" * 60)
         for data in sent_data:
-            if data[2] == ACCEPTED:
+            if data[2] == SENT:
                 print(
-                    bcolors.OKGREEN, str(data[0]) + 'ms', '|', data[1], '|',
-                    data[2], '|', data[3], bcolors.ENDC)
+                    bcolors.OKBLUE, str(data[0]) + 'ms', '|', data[1], '|  ',
+                    data[2], '  |', data[3], bcolors.ENDC)
 
             elif data[2] == REJECTED:
                 print(bcolors.FAIL, str(data[0]) + 'ms', '|', data[1], '|',
@@ -171,13 +180,18 @@ def main():
         print("Time | Bucket | Status | Number of Packs Sent | Leack | Queue")
         print("=" * 60)
         for data in sent_data:
-            if data[2] == ACCEPTED:
-                print(bcolors.OKGREEN, str(data[0]) + 'ms', '|', data[1], '|',
-                      data[2], '|', data[3], '|', data[4], '|', data[5],
+            if data[2] == SENT:
+                print(bcolors.OKBLUE, str(data[0]) + 'ms', '|', data[1], '|  ',
+                      data[2], '  |', data[3], '|', data[4], '|', data[5],
                       bcolors.ENDC)
 
             elif data[2] == REJECTED:
                 print(bcolors.FAIL, str(data[0]) + 'ms', '|', data[1], '|',
+                      data[2], '|', data[3], '|', data[4], '|', data[5],
+                      bcolors.ENDC)
+
+            elif data[2] == ACCEPTED:
+                print(bcolors.OKGREEN, str(data[0]) + 'ms', '|', data[1], '|',
                       data[2], '|', data[3], '|', data[4], '|', data[5],
                       bcolors.ENDC)
 

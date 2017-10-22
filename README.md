@@ -1,4 +1,4 @@
-# Network Flow Shpaing Buckets
+# Network Flow Shaping Buckets
 Token bucket and leaky bucket simulation
 
 
