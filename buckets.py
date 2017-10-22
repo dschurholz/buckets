@@ -82,7 +82,7 @@ def token_bucket(r, size, input_rate, packet_size, time_lapse, packet_dates):
             else:
                 bucket -= packet_size
                 sent_packets += 1
-                sent_data.append([i, bucket, SENT, sent_packets])
+                sent_data.append([i, bucket, ACCEPTED, sent_packets])
         else:
             sent_data.append([i, bucket, '--------', sent_packets])
 
@@ -149,10 +149,10 @@ def main():
         print("Time | Bucket | Status | Number of Packs Sent")
         print("=" * 60)
         for data in sent_data:
-            if data[2] == SENT:
+            if data[2] == ACCEPTED:
                 print(
-                    bcolors.OKBLUE, str(data[0]) + 'ms', '|', data[1], '|  ',
-                    data[2], '  |', data[3], bcolors.ENDC)
+                    bcolors.OKGREEN, str(data[0]) + 'ms', '|', data[1], '|',
+                    data[2], '|', data[3], bcolors.ENDC)
 
             elif data[2] == REJECTED:
                 print(bcolors.FAIL, str(data[0]) + 'ms', '|', data[1], '|',
